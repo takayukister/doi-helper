@@ -1,1 +1,1 @@
-# doi-helper
+# Double opt-in helper
