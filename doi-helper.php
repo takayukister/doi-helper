@@ -120,9 +120,50 @@ function doihelper_verify( $token ) {
 }
 
 
+class DOIHELPER_Agency {
+
+	private static $instance;
+
+	private $agents = array();
+
+	private function __construct() {}
+
+
+	public static function get_instance() {
+		if ( empty( self::$instance ) ) {
+			self::$instance = new self;
+		}
+
+		return self::$instance;
+	}
+
+
+	public function register_agent( $name, $class ) {
+		if ( is_subclass_of( $class, 'DOIHELPER_Agent' ) ) {
+			$name = sanitize_key( $name );
+			$this->agents[$name] = $class;
+		}
+	}
+
+
+	public function call_agent( $name ) {
+		$name = sanitize_key( $name );
+
+		if ( ! empty( $this->agents[$name] ) ) {
+			$class = $this->agents[$name];
+			return new $class;
+		}
+
+		return null;
+	}
+
+}
+
+
 abstract class DOIHELPER_Agent {
 
 	abstract public function get_agent_name();
+	abstract public function optin_callback();
 
 
 	public function send_email( $args = '' ) {
