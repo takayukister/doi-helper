@@ -75,6 +75,8 @@ add_action( 'init',
 			'internal' => true,
 		) );
 
+		$agency = DOIHELPER_Agency::get_instance();
+
 		if ( isset( $_REQUEST( DOIHELPER_QUERY_KEY ) ) ) {
 			$token = (string) array_shift(
 				(array) $_REQUEST( DOIHELPER_QUERY_KEY )
@@ -86,7 +88,11 @@ add_action( 'init',
 		$entry = doihelper_verify( $token );
 
 		if ( $entry ) {
-			do_action( 'doihelper_verified', $entry );
+			$agent_name = get_post_meta( $entry->ID, '_agent', true );
+			$agent = $agency->call_agent( $agent_name );
+			$agent->optin_callback();
+
+			do_action( 'doihelper_verified', $agent, $entry );
 		}
 	},
 	10, 0
@@ -162,7 +168,6 @@ class DOIHELPER_Agency {
 
 abstract class DOIHELPER_Agent {
 
-	abstract public function get_agent_name();
 	abstract public function optin_callback();
 
 
