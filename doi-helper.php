@@ -14,6 +14,8 @@ define( 'DOIHELPER_VERSION', '0.72' );
 
 define( 'DOIHELPER_PLUGIN', __FILE__ );
 
+define( 'DOIHELPER_QUERY_KEY', 'doicode' );
+
 
 add_action( 'init',
 	function () {
@@ -29,12 +31,45 @@ add_action( 'init',
 				'query_var' => false,
 			)
 		);
+
+		if ( isset( $_REQUEST( DOIHELPER_QUERY_KEY ) ) ) {
+			$code = (string) array_shift(
+				(array) $_REQUEST( DOIHELPER_QUERY_KEY )
+			);
+		} else {
+			return;
+		}
+
+		$entry = doihelper_verify( $code );
+
+		if ( $entry ) {
+			do_action( 'doihelper_verified', $entry );
+		}
 	},
 	10, 0
 );
 
 
+function doihelper_verify( $code ) {
+	$q = new WP_Query();
+
+	$posts = $q->query( array(
+		'post_type' => 'doihelper_entry',
+		'post_status' => 'any',
+		'posts_per_page' => -1,
+		'offset' => 0,
+		'orderby' => 'ID',
+		'order' => 'ASC',
+	) );
+
+	return $posts;
+}
+
+
 abstract class DOIHELPER_Agent {
+
+	abstract public function get_agent_name();
+
 
 	public function send_email( $args = '' ) {
 		$args = wp_parse_args( $args, array(
@@ -54,19 +89,3 @@ abstract class DOIHELPER_Agent {
 	}
 
 }
-
-
-function doihelper_verify( $code ) {
-
-}
-
-
-add_action( 'init', function () {
-
-	$code = '';
-
-	if ( doihelper_verify( $code ) ) {
-		do_action( 'doihelper_verified' );
-	}
-
-}, 10, 0 );
