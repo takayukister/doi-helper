@@ -63,6 +63,18 @@ add_action( 'init',
 			)
 		);
 
+		register_post_status( 'opted-in', array(
+			'label' => __( 'Opted in', 'doi-helper' ),
+			'public' => false,
+			'internal' => true,
+		) );
+
+		register_post_status( 'expired', array(
+			'label' => __( 'Expired', 'doi-helper' ),
+			'public' => false,
+			'internal' => true,
+		) );
+
 		if ( isset( $_REQUEST( DOIHELPER_QUERY_KEY ) ) ) {
 			$token = (string) array_shift(
 				(array) $_REQUEST( DOIHELPER_QUERY_KEY )
@@ -86,14 +98,25 @@ function doihelper_verify( $token ) {
 
 	$posts = $q->query( array(
 		'post_type' => 'doihelper_entry',
-		'post_status' => 'any',
-		'posts_per_page' => -1,
+		'post_status' => 'publish',
+		'posts_per_page' => 1,
 		'offset' => 0,
 		'orderby' => 'ID',
 		'order' => 'ASC',
+		'meta_key' => '_token',
+		'meta_value' => $token,
 	) );
 
-	return $posts;
+	if ( isset( $posts[0] ) ) {
+		$post = get_post( $posts[0] );
+
+		// todo: check _acceptance_period
+		// todo: change the post_status
+
+		return $post;
+	}
+
+	return false;
 }
 
 
