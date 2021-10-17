@@ -14,7 +14,7 @@ define( 'DOIHELPER_VERSION', '0.72' );
 
 define( 'DOIHELPER_PLUGIN', __FILE__ );
 
-define( 'DOIHELPER_QUERY_KEY', 'doicode' );
+define( 'DOIHELPER_QUERY_KEY', 'doitoken' );
 
 
 add_action( 'init',
@@ -32,15 +32,46 @@ add_action( 'init',
 			)
 		);
 
+		register_post_meta(
+			'doihelper_entry',
+			'_agent',
+			array(
+				'type' => 'string',
+				'single' => true,
+				'show_in_rest' => true,
+				'sanitize_callback' => 'sanitize_key',
+			)
+		);
+
+		register_post_meta(
+			'doihelper_entry',
+			'_token',
+			array(
+				'type' => 'string',
+				'single' => true,
+				'show_in_rest' => true,
+			)
+		);
+
+		register_post_meta(
+			'doihelper_entry',
+			'_acceptance_period',
+			array(
+				'type' => 'integer',
+				'single' => true,
+				'show_in_rest' => true,
+			)
+		);
+
 		if ( isset( $_REQUEST( DOIHELPER_QUERY_KEY ) ) ) {
-			$code = (string) array_shift(
+			$token = (string) array_shift(
 				(array) $_REQUEST( DOIHELPER_QUERY_KEY )
 			);
 		} else {
 			return;
 		}
 
-		$entry = doihelper_verify( $code );
+		$entry = doihelper_verify( $token );
 
 		if ( $entry ) {
 			do_action( 'doihelper_verified', $entry );
@@ -50,7 +81,7 @@ add_action( 'init',
 );
 
 
-function doihelper_verify( $code ) {
+function doihelper_verify( $token ) {
 	$q = new WP_Query();
 
 	$posts = $q->query( array(
@@ -80,11 +111,11 @@ abstract class DOIHELPER_Agent {
 			'template' => null,
 		) );
 
-		$code = $this->generate_code( $args );
+		$token = $this->create_token( $args );
 	}
 
 
-	private function generate_code( $args = '' ) {
+	private function create_token( $args = '' ) {
 
 	}
 
