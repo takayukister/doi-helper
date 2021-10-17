@@ -75,6 +75,8 @@ add_action( 'init',
 			'internal' => true,
 		) );
 
+		$agency = DOIHELPER_Agency::get_instance();
+
 		if ( isset( $_REQUEST( DOIHELPER_QUERY_KEY ) ) ) {
 			$token = (string) array_shift(
 				(array) $_REQUEST( DOIHELPER_QUERY_KEY )
@@ -86,7 +88,11 @@ add_action( 'init',
 		$entry = doihelper_verify( $token );
 
 		if ( $entry ) {
-			do_action( 'doihelper_verified', $entry );
+			$agent_name = get_post_meta( $entry->ID, '_agent', true );
+			$agent = $agency->call_agent( $agent_name );
+			$agent->optin_callback();
+
+			do_action( 'doihelper_verified', $agent, $entry );
 		}
 	},
 	10, 0
@@ -110,10 +116,22 @@ function doihelper_verify( $token ) {
 	if ( isset( $posts[0] ) ) {
 		$post = get_post( $posts[0] );
 
-		// todo: check _acceptance_period
-		// todo: change the post_status
+		$acceptance_period = get_post_meta( $post->ID, '_acceptance_period', true );
+		$expires_at = get_post_timestamp( $post ) + $acceptance_period;
 
-		return $post;
+		if ( time() < $expires_at ) {
+			wp_update_post( array(
+				'ID' => $post->ID,
+				'post_status' => 'opted-in',
+			) );
+
+			return $post;
+		} else {
+			wp_update_post( array(
+				'ID' => $post->ID,
+				'post_status' => 'expired',
+			) );
+		}
 	}
 
 	return false;
@@ -162,7 +180,6 @@ class DOIHELPER_Agency {
 
 abstract class DOIHELPER_Agent {
 
-	abstract public function get_agent_name();
 	abstract public function optin_callback();
 
 
