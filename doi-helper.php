@@ -32,3 +32,41 @@ add_action( 'init',
 	},
 	10, 0
 );
+
+
+abstract class DOIHELPER_Agent {
+
+	public function send_email( $args = '' ) {
+		$args = wp_parse_args( $args, array(
+			'time_limit' => 24 * HOUR_IN_SECONDS,
+			'locale' => null,
+			'sender' => null,
+			'recipient' => null,
+			'template' => null,
+		) );
+
+		$code = $this->generate_code( $args );
+	}
+
+
+	private function generate_code( $args = '' ) {
+
+	}
+
+}
+
+
+function doihelper_verify( $code ) {
+
+}
+
+
+add_action( 'init', function () {
+
+	$code = '';
+
+	if ( doihelper_verify( $code ) ) {
+		do_action( 'doihelper_verified' );
+	}
+
+}, 10, 0 );
