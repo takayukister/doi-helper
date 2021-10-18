@@ -14,7 +14,7 @@ define( 'DOIHELPER_VERSION', '0.72' );
 
 define( 'DOIHELPER_PLUGIN', __FILE__ );
 
-define( 'DOIHELPER_QUERY_KEY', 'doitoken' );
+define( 'DOIHELPER_TOKEN_QUERY_KEY', 'doitoken' );
 
 
 add_action( 'init',
@@ -77,10 +77,8 @@ add_action( 'init',
 
 		$agency = DOIHELPER_Agency::get_instance();
 
-		if ( isset( $_REQUEST( DOIHELPER_QUERY_KEY ) ) ) {
-			$token = (string) array_shift(
-				(array) $_REQUEST( DOIHELPER_QUERY_KEY )
-			);
+		if ( isset( $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY] ) ) {
+			$token = $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY];
 		} else {
 			return;
 		}
