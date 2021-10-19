@@ -21,8 +21,6 @@ add_action( 'init',
 	function () {
 		doihelper_register_post_types();
 
-		$agency = DOIHELPER_Agency::get_instance();
-
 		if ( isset( $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY] ) ) {
 			$token = $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY];
 		} else {
@@ -32,6 +30,7 @@ add_action( 'init',
 		$entry = doihelper_verify( $token );
 
 		if ( $entry ) {
+			$agency = DOIHELPER_Agency::get_instance();
 			$agent_name = get_post_meta( $entry->ID, '_agent', true );
 			$agent = $agency->call_agent( $agent_name );
 			$agent->optin_callback();
