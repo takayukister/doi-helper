@@ -19,61 +19,7 @@ define( 'DOIHELPER_TOKEN_QUERY_KEY', 'doitoken' );
 
 add_action( 'init',
 	function () {
-		register_post_type(
-			'doihelper_entry',
-			array(
-				'labels' => array(
-					'name' => __( 'DOI Entries', 'doi-helper' ),
-					'singular_name' => __( 'DOI Entry', 'doi-helper' ),
-				),
-				'public' => false,
-				'rewrite' => false,
-				'query_var' => false,
-			)
-		);
-
-		register_post_meta(
-			'doihelper_entry',
-			'_agent',
-			array(
-				'type' => 'string',
-				'single' => true,
-				'show_in_rest' => true,
-				'sanitize_callback' => 'sanitize_key',
-			)
-		);
-
-		register_post_meta(
-			'doihelper_entry',
-			'_token',
-			array(
-				'type' => 'string',
-				'single' => true,
-				'show_in_rest' => true,
-			)
-		);
-
-		register_post_meta(
-			'doihelper_entry',
-			'_acceptance_period',
-			array(
-				'type' => 'integer',
-				'single' => true,
-				'show_in_rest' => true,
-			)
-		);
-
-		register_post_status( 'opted-in', array(
-			'label' => __( 'Opted in', 'doi-helper' ),
-			'public' => false,
-			'internal' => true,
-		) );
-
-		register_post_status( 'expired', array(
-			'label' => __( 'Expired', 'doi-helper' ),
-			'public' => false,
-			'internal' => true,
-		) );
+		doihelper_register_post_types();
 
 		$agency = DOIHELPER_Agency::get_instance();
 
@@ -95,6 +41,65 @@ add_action( 'init',
 	},
 	10, 0
 );
+
+
+function doihelper_register_post_types() {
+	register_post_type(
+		'doihelper_entry',
+		array(
+			'labels' => array(
+				'name' => __( 'DOI Entries', 'doi-helper' ),
+				'singular_name' => __( 'DOI Entry', 'doi-helper' ),
+			),
+			'public' => false,
+			'rewrite' => false,
+			'query_var' => false,
+		)
+	);
+
+	register_post_meta(
+		'doihelper_entry',
+		'_agent',
+		array(
+			'type' => 'string',
+			'single' => true,
+			'show_in_rest' => true,
+			'sanitize_callback' => 'sanitize_key',
+		)
+	);
+
+	register_post_meta(
+		'doihelper_entry',
+		'_token',
+		array(
+			'type' => 'string',
+			'single' => true,
+			'show_in_rest' => true,
+		)
+	);
+
+	register_post_meta(
+		'doihelper_entry',
+		'_acceptance_period',
+		array(
+			'type' => 'integer',
+			'single' => true,
+			'show_in_rest' => true,
+		)
+	);
+
+	register_post_status( 'opted-in', array(
+		'label' => __( 'Opted in', 'doi-helper' ),
+		'public' => false,
+		'internal' => true,
+	) );
+
+	register_post_status( 'expired', array(
+		'label' => __( 'Expired', 'doi-helper' ),
+		'public' => false,
+		'internal' => true,
+	) );
+}
 
 
 function doihelper_verify( $token ) {
