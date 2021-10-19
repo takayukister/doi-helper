@@ -119,9 +119,11 @@ class DOIHELPER_Entry {
 
 			if ( time() < $expires_at ) {
 				$entry->change_status( 'opted-in' );
-				$entry->call_agent();
 
-				do_action( 'doihelper_verified', $entry );
+				$agent = $entry->call_agent();
+				$agent->optin_callback();
+
+				do_action( 'doihelper_optin', $entry );
 
 				return $entry;
 			} else {
@@ -186,7 +188,7 @@ class DOIHELPER_Entry {
 	private function call_agent() {
 		$agency = DOIHELPER_Agency::get_instance();
 		$agent = $agency->call_agent( $this->agent_name );
-		$agent->optin_callback();
+		return $agent;
 	}
 }
 
