@@ -23,19 +23,9 @@ add_action( 'init',
 
 		if ( isset( $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY] ) ) {
 			$token = $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY];
+			DOIHELPER_Entry::verify( $token );
 		} else {
 			return;
-		}
-
-		$entry = doihelper_verify( $token );
-
-		if ( $entry ) {
-			$agency = DOIHELPER_Agency::get_instance();
-			$agent_name = get_post_meta( $entry->ID, '_agent', true );
-			$agent = $agency->call_agent( $agent_name );
-			$agent->optin_callback();
-
-			do_action( 'doihelper_verified', $agent, $entry );
 		}
 	},
 	10, 0
@@ -101,42 +91,103 @@ function doihelper_register_post_types() {
 }
 
 
-function doihelper_verify( $token ) {
-	$q = new WP_Query();
+class DOIHELPER_Entry {
 
-	$posts = $q->query( array(
-		'post_type' => 'doihelper_entry',
-		'post_status' => 'publish',
-		'posts_per_page' => 1,
-		'offset' => 0,
-		'orderby' => 'ID',
-		'order' => 'ASC',
-		'meta_key' => '_token',
-		'meta_value' => $token,
-	) );
+	private $id = 0;
+	private $agent_name = '';
+	private $acceptance_period = 0;
 
-	if ( isset( $posts[0] ) ) {
-		$post = get_post( $posts[0] );
 
-		$acceptance_period = get_post_meta( $post->ID, '_acceptance_period', true );
-		$expires_at = get_post_timestamp( $post ) + $acceptance_period;
+	private function __construct( $args = '' ) {
+		$args = wp_parse_args( $args, array(
+			'id' => 0,
+			'agent_name' => '',
+			'acceptance_period' => 0,
+		) );
 
-		if ( time() < $expires_at ) {
-			wp_update_post( array(
-				'ID' => $post->ID,
-				'post_status' => 'opted-in',
-			) );
-
-			return $post;
-		} else {
-			wp_update_post( array(
-				'ID' => $post->ID,
-				'post_status' => 'expired',
-			) );
-		}
+		$this->id = (int) $args['id'];
+		$this->agent_name = (string) $args['agent_name'];
+		$this->acceptance_period = (int) $args['acceptance_period'];
 	}
 
-	return false;
+
+	public static function verify( $token ) {
+		$entry = self::find( $token );
+
+		if ( $entry ) {
+			$expires_at = get_post_timestamp( $this->id ) + $entry->acceptance_period;
+
+			if ( time() < $expires_at ) {
+				$entry->change_status( 'opted-in' );
+				$entry->call_agent();
+
+				do_action( 'doihelper_verified', $entry );
+
+				return $entry;
+			} else {
+				$entry->change_status( 'expired' );
+			}
+		}
+
+		return false;
+	}
+
+
+	public static function find( $token ) {
+		$q = new WP_Query();
+
+		$posts = $q->query( array(
+			'post_type' => 'doihelper_entry',
+			'post_status' => 'publish',
+			'posts_per_page' => 1,
+			'offset' => 0,
+			'orderby' => 'ID',
+			'order' => 'ASC',
+			'meta_key' => '_token',
+			'meta_value' => $token,
+		) );
+
+		if ( isset( $posts[0] ) ) {
+			$post = get_post( $posts[0] );
+
+			$agent_name = get_post_meta(
+				$post->ID, '_agent', true
+			);
+
+			$acceptance_period = get_post_meta(
+				$post->ID, '_acceptance_period', true
+			);
+
+			$entry = new self( array(
+				'id' => $post->ID,
+				'agent_name' => $agent_name,
+				'acceptance_period' => $acceptance_period,
+			) );
+
+			return $entry;
+		}
+
+		return false;
+	}
+
+
+	private function change_status( $status ) {
+		if ( ! in_array( $status, array( 'opted-in', 'expired' ) ) ) {
+			return false;
+		}
+
+		return wp_update_post( array(
+			'ID' => $this->id,
+			'post_status' => $status,
+		) );
+	}
+
+
+	private function call_agent() {
+		$agency = DOIHELPER_Agency::get_instance();
+		$agent = $agency->call_agent( $this->agent_name );
+		$agent->optin_callback();
+	}
 }
 
 
