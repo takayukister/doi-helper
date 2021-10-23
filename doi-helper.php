@@ -94,19 +94,16 @@ function doihelper_register_post_types() {
 class DOIHELPER_Entry {
 
 	private $id = 0;
-	private $agent_name = '';
 	private $acceptance_period = 0;
 
 
 	private function __construct( $args = '' ) {
 		$args = wp_parse_args( $args, array(
 			'id' => 0,
-			'agent_name' => '',
 			'acceptance_period' => 0,
 		) );
 
 		$this->id = (int) $args['id'];
-		$this->agent_name = (string) $args['agent_name'];
 		$this->acceptance_period = (int) $args['acceptance_period'];
 	}
 
@@ -152,17 +149,12 @@ class DOIHELPER_Entry {
 		if ( isset( $posts[0] ) ) {
 			$post = get_post( $posts[0] );
 
-			$agent_name = get_post_meta(
-				$post->ID, '_agent', true
-			);
-
 			$acceptance_period = get_post_meta(
 				$post->ID, '_acceptance_period', true
 			);
 
 			$entry = new self( array(
 				'id' => $post->ID,
-				'agent_name' => $agent_name,
 				'acceptance_period' => $acceptance_period,
 			) );
 
@@ -187,8 +179,8 @@ class DOIHELPER_Entry {
 
 	private function call_agent() {
 		$agency = DOIHELPER_Agency::get_instance();
-		$agent = $agency->call_agent( $this->agent_name );
-		return $agent;
+		$agent_name = get_post_meta( $this->id, '_agent', true );
+		return $agency->call_agent( $agent_name );
 	}
 }
 
