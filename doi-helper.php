@@ -158,6 +158,43 @@ class DOIHELPER_Entry {
 	}
 
 
+	public static function create( $args = '' ) {
+		$args = wp_parse_args( $args, array(
+			'agent_name' => '',
+			'acceptance_period' => 0,
+			'properties' => array(),
+		) );
+
+		$agency = DOIHELPER_Agency::get_instance();
+		$agent = $agency->call_agent( $args['agent_name'] );
+
+		if ( $agent ) {
+			$post_id = wp_insert_post( array(
+				'post_type' => 'doihelper_entry',
+				'post_status' => 'publish',
+				'post_title' => $agent->get_code_name(),
+				'post_content' => '',
+			) );
+
+			if ( $post_id ) {
+				add_post_meta( $post_id, '_agent', $args['agent_name'], true );
+
+				add_post_meta( $post_id, '_token', "token here", true );
+
+				add_post_meta( $post_id, '_acceptance_period',
+					$args['acceptance_period'], true
+				);
+
+				return new self( array(
+					'id' => $post_id,
+				) );
+			}
+		}
+
+		return false;
+	}
+
+
 	private function change_status( $status ) {
 		if ( ! in_array( $status, array( 'opted-in', 'expired' ) ) ) {
 			return false;
@@ -225,6 +262,7 @@ class DOIHELPER_Agency {
 
 abstract class DOIHELPER_Agent {
 
+	abstract public function get_code_name();
 	abstract public function optin_callback();
 
 
