@@ -94,17 +94,14 @@ function doihelper_register_post_types() {
 class DOIHELPER_Entry {
 
 	private $id = 0;
-	private $acceptance_period = 0;
 
 
 	private function __construct( $args = '' ) {
 		$args = wp_parse_args( $args, array(
 			'id' => 0,
-			'acceptance_period' => 0,
 		) );
 
 		$this->id = (int) $args['id'];
-		$this->acceptance_period = (int) $args['acceptance_period'];
 	}
 
 
@@ -112,7 +109,8 @@ class DOIHELPER_Entry {
 		$entry = self::find( $token );
 
 		if ( $entry ) {
-			$expires_at = get_post_timestamp( $this->id ) + $entry->acceptance_period;
+			$acceptance_period = $entry->get_acceptance_period();
+			$expires_at = get_post_timestamp( $this->id ) + $acceptance_period;
 
 			if ( time() < $expires_at ) {
 				$entry->change_status( 'opted-in' );
@@ -149,13 +147,8 @@ class DOIHELPER_Entry {
 		if ( isset( $posts[0] ) ) {
 			$post = get_post( $posts[0] );
 
-			$acceptance_period = get_post_meta(
-				$post->ID, '_acceptance_period', true
-			);
-
 			$entry = new self( array(
 				'id' => $post->ID,
-				'acceptance_period' => $acceptance_period,
 			) );
 
 			return $entry;
@@ -181,6 +174,11 @@ class DOIHELPER_Entry {
 		$agency = DOIHELPER_Agency::get_instance();
 		$agent_name = get_post_meta( $this->id, '_agent', true );
 		return $agency->call_agent( $agent_name );
+	}
+
+
+	private function get_acceptance_period() {
+		return (int) get_post_meta( $this->id, '_acceptance_period', true );
 	}
 }
 
