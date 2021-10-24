@@ -109,19 +109,20 @@ class DOIHELPER_Agency {
 	}
 
 
-	public function register_agent( $name, $class ) {
+	public function register_agent( $agent_name, $class ) {
+		$agent_name = sanitize_key( $agent_name );
+
 		if ( is_subclass_of( $class, 'DOIHELPER_Agent' ) ) {
-			$name = sanitize_key( $name );
-			$this->agents[$name] = $class;
+			$this->agents[$agent_name] = $class;
 		}
 	}
 
 
-	public function call_agent( $name ) {
-		$name = sanitize_key( $name );
+	public function call_agent( $agent_name ) {
+		$agent_name = sanitize_key( $agent_name );
 
-		if ( ! empty( $this->agents[$name] ) ) {
-			$class = $this->agents[$name];
+		if ( ! empty( $this->agents[$agent_name] ) ) {
+			$class = $this->agents[$agent_name];
 			return new $class;
 		}
 
