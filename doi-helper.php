@@ -203,7 +203,6 @@ abstract class DOIHELPER_Agent {
 
 	const acceptance_period = 24 * HOUR_IN_SECONDS;
 
-	abstract public function get_code_name();
 	abstract public function optin_callback();
 
 
@@ -215,13 +214,6 @@ abstract class DOIHELPER_Agent {
 			'recipient' => null,
 			'template' => null,
 		) );
-
-		$token = $this->create_token( $args );
-	}
-
-
-	private function create_token( $args = '' ) {
-
 	}
 
 }
