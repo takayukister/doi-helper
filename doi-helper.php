@@ -23,9 +23,9 @@ add_action( 'init',
 
 		if ( isset( $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY] ) ) {
 			$token = $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY];
-			DOIHELPER_Entry::verify( $token );
-		} else {
-			return;
+
+			$agency = DOIHELPER_Agency::get_instance();
+			$agency->verify_token( $token );
 		}
 	},
 	10, 0
@@ -91,135 +91,6 @@ function doihelper_register_post_types() {
 }
 
 
-class DOIHELPER_Entry {
-
-	private $id = 0;
-
-
-	private function __construct( $args = '' ) {
-		$args = wp_parse_args( $args, array(
-			'id' => 0,
-		) );
-
-		$this->id = (int) $args['id'];
-	}
-
-
-	public static function verify( $token ) {
-		$entry = self::find( $token );
-
-		if ( $entry ) {
-			$acceptance_period = $entry->get_acceptance_period();
-			$expires_at = get_post_timestamp( $this->id ) + $acceptance_period;
-
-			if ( time() < $expires_at ) {
-				$entry->change_status( 'opted-in' );
-
-				$agent = $entry->call_agent();
-				$agent->optin_callback();
-
-				do_action( 'doihelper_optin', $entry );
-
-				return $entry;
-			} else {
-				$entry->change_status( 'expired' );
-			}
-		}
-
-		return false;
-	}
-
-
-	public static function find( $token ) {
-		$q = new WP_Query();
-
-		$posts = $q->query( array(
-			'post_type' => 'doihelper_entry',
-			'post_status' => 'publish',
-			'posts_per_page' => 1,
-			'offset' => 0,
-			'orderby' => 'ID',
-			'order' => 'ASC',
-			'meta_key' => '_token',
-			'meta_value' => $token,
-		) );
-
-		if ( isset( $posts[0] ) ) {
-			$post = get_post( $posts[0] );
-
-			$entry = new self( array(
-				'id' => $post->ID,
-			) );
-
-			return $entry;
-		}
-
-		return false;
-	}
-
-
-	public static function create( $args = '' ) {
-		$args = wp_parse_args( $args, array(
-			'agent_name' => '',
-			'acceptance_period' => 0,
-			'properties' => array(),
-		) );
-
-		$agency = DOIHELPER_Agency::get_instance();
-		$agent = $agency->call_agent( $args['agent_name'] );
-
-		if ( $agent ) {
-			$post_id = wp_insert_post( array(
-				'post_type' => 'doihelper_entry',
-				'post_status' => 'publish',
-				'post_title' => $agent->get_code_name(),
-				'post_content' => '',
-			) );
-
-			if ( $post_id ) {
-				add_post_meta( $post_id, '_agent', $args['agent_name'], true );
-
-				add_post_meta( $post_id, '_token', "token here", true );
-
-				add_post_meta( $post_id, '_acceptance_period',
-					$args['acceptance_period'], true
-				);
-
-				return new self( array(
-					'id' => $post_id,
-				) );
-			}
-		}
-
-		return false;
-	}
-
-
-	private function change_status( $status ) {
-		if ( ! in_array( $status, array( 'opted-in', 'expired' ) ) ) {
-			return false;
-		}
-
-		return wp_update_post( array(
-			'ID' => $this->id,
-			'post_status' => $status,
-		) );
-	}
-
-
-	private function call_agent() {
-		$agency = DOIHELPER_Agency::get_instance();
-		$agent_name = get_post_meta( $this->id, '_agent', true );
-		return $agency->call_agent( $agent_name );
-	}
-
-
-	private function get_acceptance_period() {
-		return (int) get_post_meta( $this->id, '_acceptance_period', true );
-	}
-}
-
-
 class DOIHELPER_Agency {
 
 	private static $instance;
@@ -255,6 +126,56 @@ class DOIHELPER_Agency {
 		}
 
 		return null;
+	}
+
+
+	public function verify_token( $token ) {
+		$q = new WP_Query();
+
+		$posts = $q->query( array(
+			'post_type' => 'doihelper_entry',
+			'post_status' => 'publish',
+			'posts_per_page' => 1,
+			'offset' => 0,
+			'orderby' => 'ID',
+			'order' => 'ASC',
+			'meta_key' => '_token',
+			'meta_value' => $token,
+		) );
+
+		if ( ! isset( $posts[0] ) ) {
+			return false;
+		}
+
+		$post = get_post( $posts[0] );
+
+		if ( $post ) {
+			$acceptance_period = (int) get_post_meta(
+				$post->ID, '_acceptance_period', true
+			);
+
+			$expires_at = get_post_timestamp( $post->ID ) + $acceptance_period;
+
+			if ( time() < $expires_at ) {
+				wp_update_post( array(
+					'ID' => $post->ID,
+					'post_status' => 'opted-in',
+				) );
+
+				$agent_name = get_post_meta( $post->ID, '_agent', true );
+				$agent = $this->call_agent( $agent_name );
+				$agent->optin_callback();
+
+				return true;
+			} else {
+				wp_update_post( array(
+					'ID' => $post->ID,
+					'post_status' => 'expired',
+				) );
+			}
+		}
+
+		return false;
 	}
 
 }
