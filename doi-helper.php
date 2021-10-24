@@ -136,8 +136,10 @@ class DOIHELPER_Agency {
 		) );
 
 		if ( $post_id ) {
+			$token = wp_generate_password( 24, false );
+
 			add_post_meta( $post_id, '_agent', $agent_name, true );
-			add_post_meta( $post_id, '_token', 'token here', true );
+			add_post_meta( $post_id, '_token', $token, true );
 
 			return $post_id;
 		}
