@@ -120,6 +120,32 @@ class DOIHELPER_Agency {
 	}
 
 
+	public function start_doi_session( $agent_name, $properties = array() ) {
+		$agent_name = sanitize_key( $agent_name );
+		$agent = $this->call_agent( $agent_name );
+
+		if ( ! $agent ) {
+			return false;
+		}
+
+		$post_id = wp_insert_post( array(
+			'post_type' => 'doihelper_entry',
+			'post_status' => 'publish',
+			'post_title' => __( 'DOI Entry', 'doi-helper' ),
+			'post_content' => '',
+		) );
+
+		if ( $post_id ) {
+			add_post_meta( $post_id, '_agent', $agent_name, true );
+			add_post_meta( $post_id, '_token', 'token here', true );
+
+			return $post_id;
+		}
+
+		return false;
+	}
+
+
 	public function verify_token( $token ) {
 		$q = new WP_Query();
 
