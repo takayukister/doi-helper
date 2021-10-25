@@ -14,15 +14,13 @@ define( 'DOIHELPER_VERSION', '0.72' );
 
 define( 'DOIHELPER_PLUGIN', __FILE__ );
 
-define( 'DOIHELPER_TOKEN_QUERY_KEY', 'doitoken' );
-
 
 add_action( 'init',
 	function () {
 		doihelper_register_post_types();
 
-		if ( isset( $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY] ) ) {
-			$token = $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY];
+		if ( isset( $_REQUEST[DOIHELPER_Manager::token_query_key] ) ) {
+			$token = $_REQUEST[DOIHELPER_Manager::token_query_key];
 
 			$manager = DOIHELPER_Manager::get_instance();
 			$manager->verify_token( $token );
@@ -82,6 +80,8 @@ function doihelper_register_post_types() {
 
 
 class DOIHELPER_Manager {
+
+	const token_query_key = 'doitoken';
 
 	private static $instance;
 
