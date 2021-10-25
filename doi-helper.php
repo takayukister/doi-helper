@@ -50,7 +50,6 @@ function doihelper_register_post_types() {
 		array(
 			'type' => 'string',
 			'single' => true,
-			'show_in_rest' => true,
 			'sanitize_callback' => 'sanitize_key',
 		)
 	);
@@ -61,7 +60,15 @@ function doihelper_register_post_types() {
 		array(
 			'type' => 'string',
 			'single' => true,
-			'show_in_rest' => true,
+		)
+	);
+
+	register_post_meta(
+		'doihelper_entry',
+		'_properties',
+		array(
+			'type' => 'array',
+			'single' => true,
 		)
 	);
 
@@ -142,6 +149,7 @@ class DOIHELPER_Manager {
 
 			add_post_meta( $post_id, '_agent', $agent_name, true );
 			add_post_meta( $post_id, '_token', $token, true );
+			add_post_meta( $post_id, '_properties', (array) $properties, true );
 
 			return $post_id;
 		}
@@ -188,7 +196,8 @@ class DOIHELPER_Manager {
 				) );
 
 				if ( is_callable( $agent['optin_callback'] ) ) {
-					call_user_func( $agent['optin_callback'] );
+					$properties = (array) get_post_meta( $post->ID, '_properties', true );
+					call_user_func( $agent['optin_callback'], $properties );
 				}
 
 				return true;
