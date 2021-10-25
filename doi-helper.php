@@ -99,12 +99,15 @@ class DOIHELPER_Agency {
 	}
 
 
-	public function register_agent( $agent_name, $class ) {
+	public function register_agent( $agent_name, $args = '' ) {
 		$agent_name = sanitize_key( $agent_name );
 
-		if ( is_subclass_of( $class, 'DOIHELPER_Agent' ) ) {
-			$this->agents[$agent_name] = $class;
-		}
+		$args = wp_parse_args( $args, array(
+			'acceptance_period' => 24 * HOUR_IN_SECONDS,
+			'optin_callback' => null,
+		) );
+
+		$this->agents[$agent_name] = $args;
 	}
 
 
@@ -112,8 +115,7 @@ class DOIHELPER_Agency {
 		$agent_name = sanitize_key( $agent_name );
 
 		if ( ! empty( $this->agents[$agent_name] ) ) {
-			$class = $this->agents[$agent_name];
-			return new $class;
+			return $this->agents[$agent_name];
 		}
 
 		return null;
@@ -176,7 +178,7 @@ class DOIHELPER_Agency {
 				return false;
 			}
 
-			$acceptance_period = (int) $agent::acceptance_period;
+			$acceptance_period = (int) $agent['acceptance_period'];
 			$expires_at = get_post_timestamp( $post->ID ) + $acceptance_period;
 
 			if ( time() < $expires_at ) {
@@ -185,7 +187,10 @@ class DOIHELPER_Agency {
 					'post_status' => 'opted-in',
 				) );
 
-				$agent->optin_callback();
+				if ( is_callable( $agent['optin_callback'] ) ) {
+					call_user_func( $agent['optin_callback'] );
+				}
+
 				return true;
 			} else {
 				wp_update_post( array(
@@ -196,26 +201,6 @@ class DOIHELPER_Agency {
 		}
 
 		return false;
-	}
-
-}
-
-
-abstract class DOIHELPER_Agent {
-
-	const acceptance_period = 24 * HOUR_IN_SECONDS;
-
-	abstract public function optin_callback();
-
-
-	public function send_email( $args = '' ) {
-		$args = wp_parse_args( $args, array(
-			'time_limit' => 24 * HOUR_IN_SECONDS,
-			'locale' => null,
-			'sender' => null,
-			'recipient' => null,
-			'template' => null,
-		) );
 	}
 
 }
