@@ -151,7 +151,7 @@ class DOIHELPER_Manager {
 			add_post_meta( $post_id, '_token', $token, true );
 			add_post_meta( $post_id, '_properties', (array) $properties, true );
 
-			return $post_id;
+			return $token;
 		}
 
 		return false;
