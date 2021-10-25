@@ -24,8 +24,8 @@ add_action( 'init',
 		if ( isset( $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY] ) ) {
 			$token = $_REQUEST[DOIHELPER_TOKEN_QUERY_KEY];
 
-			$agency = DOIHELPER_Agency::get_instance();
-			$agency->verify_token( $token );
+			$manager = DOIHELPER_Manager::get_instance();
+			$manager->verify_token( $token );
 		}
 	},
 	10, 0
@@ -81,7 +81,7 @@ function doihelper_register_post_types() {
 }
 
 
-class DOIHELPER_Agency {
+class DOIHELPER_Manager {
 
 	private static $instance;
 
