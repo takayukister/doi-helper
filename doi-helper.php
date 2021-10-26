@@ -71,18 +71,6 @@ function doihelper_register_post_types() {
 			'single' => true,
 		)
 	);
-
-	register_post_status( 'opted-in', array(
-		'label' => __( 'Opted in', 'doi-helper' ),
-		'public' => false,
-		'internal' => true,
-	) );
-
-	register_post_status( 'expired', array(
-		'label' => __( 'Expired', 'doi-helper' ),
-		'public' => false,
-		'internal' => true,
-	) );
 }
 
 
@@ -190,22 +178,16 @@ class DOIHELPER_Manager {
 			$expires_at = get_post_timestamp( $post->ID ) + $acceptance_period;
 
 			if ( time() < $expires_at ) {
-				wp_update_post( array(
-					'ID' => $post->ID,
-					'post_status' => 'opted-in',
-				) );
-
 				if ( is_callable( $agent['optin_callback'] ) ) {
 					$properties = (array) get_post_meta( $post->ID, '_properties', true );
 					call_user_func( $agent['optin_callback'], $properties );
 				}
 
+				wp_delete_post( $post->ID, true );
 				return true;
 			} else {
-				wp_update_post( array(
-					'ID' => $post->ID,
-					'post_status' => 'expired',
-				) );
+				wp_delete_post( $post->ID, true );
+				return false;
 			}
 		}
 
