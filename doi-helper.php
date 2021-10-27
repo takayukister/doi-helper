@@ -19,11 +19,9 @@ add_action( 'init',
 	function () {
 		doihelper_register_post_types();
 
-		if ( isset( $_REQUEST[DOIHELPER_Manager::token_query_key] ) ) {
-			$token = $_REQUEST[DOIHELPER_Manager::token_query_key];
-
+		if ( isset( $_REQUEST['doitoken'] ) ) {
 			$manager = DOIHELPER_Manager::get_instance();
-			$manager->verify_token( $token );
+			$manager->verify_token( $_REQUEST['doitoken'] );
 		}
 	},
 	10, 0
@@ -79,8 +77,6 @@ function doihelper_register_post_types() {
 
 
 class DOIHELPER_Manager {
-
-	const token_query_key = 'doitoken';
 
 	private static $instance;
 
