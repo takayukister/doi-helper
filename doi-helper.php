@@ -125,9 +125,15 @@ class DOIHELPER_Manager {
 			return false;
 		}
 
+		$expires_at = new DateTimeImmutable(
+			sprintf( '@%d', time() + (int) $agent['acceptance_period'] ),
+			wp_timezone()
+		);
+
 		$post_id = wp_insert_post( array(
 			'post_type' => 'doihelper_entry',
-			'post_status' => 'publish',
+			'post_status' => 'future',
+			'post_date' => $expires_at->format( 'Y-m-d H:i:s' ),
 			'post_title' => __( 'DOI Entry', 'doi-helper' ),
 			'post_content' => '',
 		) );
@@ -151,7 +157,7 @@ class DOIHELPER_Manager {
 
 		$posts = $q->query( array(
 			'post_type' => 'doihelper_entry',
-			'post_status' => 'publish',
+			'post_status' => 'future',
 			'posts_per_page' => 1,
 			'offset' => 0,
 			'orderby' => 'ID',
@@ -174,21 +180,13 @@ class DOIHELPER_Manager {
 				return false;
 			}
 
-			$acceptance_period = (int) $agent['acceptance_period'];
-			$expires_at = get_post_timestamp( $post->ID ) + $acceptance_period;
-
-			if ( time() < $expires_at ) {
-				if ( is_callable( $agent['optin_callback'] ) ) {
-					$properties = (array) get_post_meta( $post->ID, '_properties', true );
-					call_user_func( $agent['optin_callback'], $properties );
-				}
-
-				wp_delete_post( $post->ID, true );
-				return true;
-			} else {
-				wp_delete_post( $post->ID, true );
-				return false;
+			if ( is_callable( $agent['optin_callback'] ) ) {
+				$properties = (array) get_post_meta( $post->ID, '_properties', true );
+				call_user_func( $agent['optin_callback'], $properties );
 			}
+
+			wp_delete_post( $post->ID, true );
+			return true;
 		}
 
 		return false;
