@@ -117,7 +117,7 @@ class DOIHELPER_Manager {
 	}
 
 
-	public function start_doi_session( $agent_name, $properties = array() ) {
+	public function start_session( $agent_name, $properties = array() ) {
 		$agent_name = sanitize_key( $agent_name );
 		$agent = $this->call_agent( $agent_name );
 
