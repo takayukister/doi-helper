@@ -15,6 +15,18 @@ define( 'DOIHELPER_VERSION', '0.72' );
 define( 'DOIHELPER_PLUGIN', __FILE__ );
 
 
+function doihelper_register_agent( $agent_name, $args = '' ) {
+	$manager = DOIHELPER_Manager::get_instance();
+	return $manager->register_agent( $agent_name, $args );
+}
+
+
+function doihelper_start_session( $agent_name, $properties = array() ) {
+	$manager = DOIHELPER_Manager::get_instance();
+	return $manager->start_session( $agent_name, $properties );
+}
+
+
 add_action( 'init',
 	function () {
 		doihelper_register_post_types();
