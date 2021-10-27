@@ -173,6 +173,12 @@ class DOIHELPER_Manager {
 		$post = get_post( $posts[0] );
 
 		if ( $post ) {
+
+			if ( get_post_timestamp( $post ) < time() ) {
+				wp_publish_post( $post );
+				return false;
+			}
+
 			$agent_name = get_post_meta( $post->ID, '_agent', true );
 			$agent = $this->call_agent( $agent_name );
 
