@@ -69,15 +69,6 @@ function doihelper_register_post_types() {
 
 	register_post_meta(
 		'doihelper_entry',
-		'_token',
-		array(
-			'type' => 'string',
-			'single' => true,
-		)
-	);
-
-	register_post_meta(
-		'doihelper_entry',
 		'_properties',
 		array(
 			'type' => 'array',
@@ -143,19 +134,18 @@ class DOIHELPER_Manager {
 			wp_timezone()
 		);
 
+		$token = wp_generate_password( 24, false );
+
 		$post_id = wp_insert_post( array(
 			'post_type' => 'doihelper_entry',
 			'post_status' => 'future',
 			'post_date' => $expires_at->format( 'Y-m-d H:i:s' ),
 			'post_title' => __( 'DOI Entry', 'doi-helper' ),
-			'post_content' => '',
+			'post_content' => $token,
 		) );
 
 		if ( $post_id ) {
-			$token = wp_generate_password( 24, false );
-
 			add_post_meta( $post_id, '_agent', $agent_name, true );
-			add_post_meta( $post_id, '_token', $token, true );
 			add_post_meta( $post_id, '_properties', (array) $properties, true );
 
 			return $token;
@@ -175,8 +165,7 @@ class DOIHELPER_Manager {
 			'offset' => 0,
 			'orderby' => 'ID',
 			'order' => 'ASC',
-			'meta_key' => '_token',
-			'meta_value' => $token,
+			's' => $token,
 		) );
 
 		if ( ! isset( $posts[0] ) ) {
