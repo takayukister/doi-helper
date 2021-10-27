@@ -30,6 +30,19 @@ add_action( 'init',
 );
 
 
+add_action( 'wp_after_insert_post',
+	function ( $post_id ) {
+		$post_type = get_post_type( $post_id );
+		$post_status = get_post_status( $post_id );
+
+		if ( 'doihelper_entry' === $post_type and 'future' !== $post_status ) {
+			wp_delete_post( $post_id, true );
+		}
+	},
+	10, 1
+);
+
+
 function doihelper_register_post_types() {
 	register_post_type(
 		'doihelper_entry',
@@ -175,7 +188,7 @@ class DOIHELPER_Manager {
 		if ( $post ) {
 
 			if ( get_post_timestamp( $post ) < time() ) {
-				wp_publish_post( $post );
+				wp_delete_post( $post->ID, true );
 				return false;
 			}
 
