@@ -163,6 +163,12 @@ class DOIHELPER_Manager {
 	}
 
 
+	/**
+	 * Verifies the given token.
+	 *
+	 * @param string $token The token.
+	 * @return bool True if the token is valid, false otherwise.
+	 */
 	public function verify_token( $token ) {
 		$q = new WP_Query();
 
