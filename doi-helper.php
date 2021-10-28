@@ -15,12 +15,18 @@ define( 'DOIHELPER_VERSION', '0.72' );
 define( 'DOIHELPER_PLUGIN', __FILE__ );
 
 
+/**
+ * Wrapper function for DOIHELPER_Manager::register_agent().
+ */
 function doihelper_register_agent( $agent_name, $args = '' ) {
 	$manager = DOIHELPER_Manager::get_instance();
 	return $manager->register_agent( $agent_name, $args );
 }
 
 
+/**
+ * Wrapper function for DOIHELPER_Manager::start_session().
+ */
 function doihelper_start_session( $agent_name, $properties = array() ) {
 	$manager = DOIHELPER_Manager::get_instance();
 	return $manager->start_session( $agent_name, $properties );
@@ -53,6 +59,9 @@ add_action( 'wp_after_insert_post',
 );
 
 
+/**
+ * Registers the post types and post metas for this plugin.
+ */
 function doihelper_register_post_types() {
 	register_post_type(
 		'doihelper_entry',
@@ -106,6 +115,11 @@ class DOIHELPER_Manager {
 	private function __construct() {}
 
 
+	/**
+	 * Retrieves the singleton instance of DOI manager.
+	 *
+	 * @param DOIHELPER_Manager The manager object.
+	 */
 	public static function get_instance() {
 		if ( empty( self::$instance ) ) {
 			self::$instance = new self;
@@ -115,6 +129,12 @@ class DOIHELPER_Manager {
 	}
 
 
+	/**
+	 * Registers an agent.
+	 *
+	 * @param string $agent_name Agent name.
+	 * @param string|array $args Optional. Arguments for the agent.
+	 */
 	public function register_agent( $agent_name, $args = '' ) {
 		$agent_name = sanitize_key( $agent_name );
 
@@ -127,6 +147,13 @@ class DOIHELPER_Manager {
 	}
 
 
+	/**
+	 * Calls an agent.
+	 *
+	 * @param string $agent_name Agent name.
+	 * @return array|null The array of arguments for the agent
+	 *                    if the agent exists, null otherwise.
+	 */
 	public function call_agent( $agent_name ) {
 		$agent_name = sanitize_key( $agent_name );
 
