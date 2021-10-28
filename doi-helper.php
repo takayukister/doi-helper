@@ -85,6 +85,15 @@ function doihelper_register_post_types() {
 			'single' => true,
 		)
 	);
+
+	register_post_meta(
+		'doihelper_entry',
+		'_token',
+		array(
+			'type' => 'string',
+			'single' => true,
+		)
+	);
 }
 
 
@@ -149,12 +158,13 @@ class DOIHELPER_Manager {
 			'post_status' => 'future',
 			'post_date' => $expires_at->format( 'Y-m-d H:i:s' ),
 			'post_title' => __( 'DOI Entry', 'doi-helper' ),
-			'post_content' => $token,
+			'post_content' => '',
 		) );
 
 		if ( $post_id ) {
 			add_post_meta( $post_id, '_agent', $agent_name, true );
 			add_post_meta( $post_id, '_properties', (array) $properties, true );
+			add_post_meta( $post_id, '_token', $token, true );
 
 			return $token;
 		}
@@ -179,7 +189,8 @@ class DOIHELPER_Manager {
 			'offset' => 0,
 			'orderby' => 'ID',
 			'order' => 'ASC',
-			's' => $token,
+			'meta_key' => '_token',
+			'meta_value' => $token,
 		) );
 
 		if ( ! isset( $posts[0] ) ) {
