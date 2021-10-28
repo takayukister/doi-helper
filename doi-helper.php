@@ -138,6 +138,13 @@ class DOIHELPER_Manager {
 	}
 
 
+	/**
+	 * Starts a double opt-in session.
+	 *
+	 * @param string $agent_name Agent name.
+	 * @param array $properties Optional properties of the session.
+	 * @return string|bool The token on success, false on failure.
+	 */
 	public function start_session( $agent_name, $properties = array() ) {
 		$agent_name = sanitize_key( $agent_name );
 		$agent = $this->call_agent( $agent_name );
