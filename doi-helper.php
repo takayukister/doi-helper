@@ -141,6 +141,7 @@ class DOIHELPER_Manager {
 		$args = wp_parse_args( $args, array(
 			'acceptance_period' => 24 * HOUR_IN_SECONDS,
 			'optin_callback' => null,
+			'email_callback' => null,
 		) );
 
 		$this->agents[$agent_name] = $args;
@@ -174,7 +175,6 @@ class DOIHELPER_Manager {
 	 */
 	public function start_session( $agent_name, $args = '' ) {
 		$args = wp_parse_args( $args, array(
-			'email_to' => null,
 			'properties' => array(),
 		) );
 
@@ -207,10 +207,41 @@ class DOIHELPER_Manager {
 			add_post_meta( $post_id, '_properties', $properties, true );
 			add_post_meta( $post_id, '_token', $token, true );
 
+			$args = array_merge( $args, array(
+				'token' => $token,
+				'expires_at' => $expires_at,
+			) );
+
+			$this->send_email( $agent_name, $args );
+
 			return $token;
 		}
 
 		return false;
+	}
+
+
+	public function send_email( $agent_name, $args = '' ) {
+		$args = wp_parse_args( $args, array(
+			'email_to' => null,
+		) );
+
+		if ( empty( $args['email_to'] ) or ! is_email( $args['email_to'] ) ) {
+			return false;
+		}
+
+		$agent_name = sanitize_key( $agent_name );
+		$agent = $this->call_agent( $agent_name );
+
+		if ( ! $agent ) {
+			return false;
+		}
+
+		if ( is_callable( $agent['email_callback'] ) ) {
+			return call_user_func( $agent['email_callback'], $args );
+		} else {
+			// todo: send default email
+		}
 	}
 
 
