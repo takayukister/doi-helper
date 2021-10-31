@@ -221,6 +221,13 @@ class DOIHELPER_Manager {
 	}
 
 
+	/**
+	 * Sends a confirmation email.
+	 *
+	 * @param string $agent_name Agent name.
+	 * @param string|array $args Optional. Arguments for the email.
+	 * @return bool True if email has been sent successfully. False otherwise.
+	 */
 	public function send_email( $agent_name, $args = '' ) {
 		$args = wp_parse_args( $args, array(
 			'email_to' => null,
