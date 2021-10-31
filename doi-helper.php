@@ -169,10 +169,15 @@ class DOIHELPER_Manager {
 	 * Starts a double opt-in session.
 	 *
 	 * @param string $agent_name Agent name.
-	 * @param array $properties Optional properties of the session.
+	 * @param string|array $args Optional. Arguments for the session.
 	 * @return string|bool The token on success, false on failure.
 	 */
-	public function start_session( $agent_name, $properties = array() ) {
+	public function start_session( $agent_name, $args = '' ) {
+		$args = wp_parse_args( $args, array(
+			'email_to' => null,
+			'properties' => array(),
+		) );
+
 		$agent_name = sanitize_key( $agent_name );
 		$agent = $this->call_agent( $agent_name );
 
@@ -184,6 +189,8 @@ class DOIHELPER_Manager {
 			sprintf( '@%d', time() + (int) $agent['acceptance_period'] ),
 			wp_timezone()
 		);
+
+		$properties = (array) $args['properties'];
 
 		$token = wp_generate_password( 24, false );
 
@@ -197,7 +204,7 @@ class DOIHELPER_Manager {
 
 		if ( $post_id ) {
 			add_post_meta( $post_id, '_agent', $agent_name, true );
-			add_post_meta( $post_id, '_properties', (array) $properties, true );
+			add_post_meta( $post_id, '_properties', $properties, true );
 			add_post_meta( $post_id, '_token', $token, true );
 
 			return $token;
