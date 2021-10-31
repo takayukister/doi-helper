@@ -7,11 +7,11 @@ Stable tag: 0.72
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A plugin that helps implement the double opt-in process.
+A plugin that helps other plugins implement the double opt-in process.
 
 == Description ==
 
-A plugin that helps implement the double opt-in process.
+A plugin that helps other plugins implement the double opt-in process.
 
 == Installation ==
 
