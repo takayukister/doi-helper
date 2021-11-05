@@ -38,8 +38,13 @@ add_action( 'init',
 		doihelper_register_post_types();
 
 		if ( isset( $_REQUEST['doitoken'] ) ) {
-			$manager = DOIHELPER_Manager::get_instance();
-			$manager->verify_token( $_REQUEST['doitoken'] );
+			$token = wp_unslash( $_REQUEST['doitoken'] );
+			$token_sanitized = sanitize_text_field( $token );
+
+			if ( $token === $token_sanitized ) {
+				$manager = DOIHELPER_Manager::get_instance();
+				$manager->verify_token( $token );
+			}
 		}
 	},
 	10, 0
