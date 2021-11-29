@@ -37,6 +37,8 @@ add_action( 'init',
 	function () {
 		doihelper_register_post_types();
 
+		do_action( 'doihelper_init' );
+
 		if ( isset( $_REQUEST['doitoken'] ) ) {
 			$token = wp_unslash( $_REQUEST['doitoken'] );
 			$token_sanitized = sanitize_text_field( $token );
