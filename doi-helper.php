@@ -27,9 +27,9 @@ function doihelper_register_agent( $agent_name, $args = '' ) {
 /**
  * Wrapper function for DOIHELPER_Manager::start_session().
  */
-function doihelper_start_session( $agent_name, $properties = array() ) {
+function doihelper_start_session( $agent_name, $args = array() ) {
 	$manager = DOIHELPER_Manager::get_instance();
-	return $manager->start_session( $agent_name, $properties );
+	return $manager->start_session( $agent_name, $args );
 }
 
 
