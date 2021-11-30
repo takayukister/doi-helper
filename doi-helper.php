@@ -192,10 +192,11 @@ class DOIHELPER_Manager {
 			return false;
 		}
 
-		$expires_at = new DateTimeImmutable(
-			sprintf( '@%d', time() + (int) $agent['acceptance_period'] ),
-			wp_timezone()
+		$expires_at = date_create(
+			sprintf( '@%d', time() + (int) $agent['acceptance_period'] )
 		);
+
+		$expires_at->setTimezone( wp_timezone() );
 
 		$properties = (array) $args['properties'];
 
