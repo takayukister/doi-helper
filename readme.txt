@@ -1,4 +1,4 @@
-=== DOI Helper ===
+=== Double Opt-In Helper ===
 Contributors: takayukister
 Tags: privacy, consent, opt-in
 Requires at least: 5.7
@@ -7,11 +7,11 @@ Stable tag: 0.73
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-DOI (Double Opt-In) Helper is a WordPress plugin that helps developers implement the double opt-in process in their plugins.
+Double Opt-In Helper is a WordPress plugin that helps developers implement the double opt-in process in their plugins.
 
 == Description ==
 
-DOI (Double Opt-In) Helper is a WordPress plugin that helps developers implement the double opt-in process in their plugins.
+Double Opt-In Helper is a WordPress plugin that helps developers implement the double opt-in process in their plugins.
 
 = What is double opt-in? =
 
@@ -48,5 +48,9 @@ The session data will be stored in the database until the user opts-in, or the a
 == Screenshots ==
 
 == Changelog ==
+
+= 0.73 =
+
+Initial release.
 
 == Upgrade Notice ==
