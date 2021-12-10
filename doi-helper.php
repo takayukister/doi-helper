@@ -255,7 +255,43 @@ class DOIHELPER_Manager {
 		if ( is_callable( $agent['email_callback'] ) ) {
 			return call_user_func( $agent['email_callback'], $args );
 		} else {
-			// todo: send default email
+			$site_title = wp_specialchars_decode(
+				get_bloginfo( 'name' ),
+				ENT_QUOTES
+			);
+
+			$link = add_query_arg(
+				array( 'doitoken' => $args['token'] ),
+				home_url()
+			);
+
+			$to = $args['email_to'];
+
+			$subject = sprintf(
+				/* translators: %s: blog name */
+				__( 'Opt-in confirmation from %s', 'doi-helper' ),
+				$site_title
+			);
+
+			$message = sprintf(
+				/* translators: 1: blog name, 2: confirmation link */
+				__( 'Hello,
+
+This is a confirmation email sent from %1$s.
+
+We have received your submission to our site, according to which you have allowed us to add you to our contact list. But, the process has not yet been completed. To complete it, please click the following link.
+
+%2$s
+
+If it was not your intention, or if you have no idea why you received this message, please do not click on the link, and ignore this message.
+
+Sincerely,
+%1$s', 'doi-helper' ),
+				$site_title,
+				$link
+			);
+
+			wp_mail( $to, $subject, $message );
 		}
 	}
 
