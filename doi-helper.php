@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: DOI Helper
+Plugin Name: Double Opt-In Helper
 Plugin URI: https://contactform7.com/doi-helper/
 Description: A WordPress plugin that helps developers implement the double opt-in process in their plugins.
 Author: Takayuki Miyoshi
