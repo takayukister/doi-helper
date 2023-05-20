@@ -1,16 +1,18 @@
 <?php
 /*
-Plugin Name: Double Opt-In Helper
-Plugin URI: https://contactform7.com/doi-helper/
-Description: A WordPress plugin that helps developers implement the double opt-in process in their plugins.
-Author: Takayuki Miyoshi
-Author URI: https://ideasilo.wordpress.com/
-Text Domain: doi-helper
-Domain Path: /languages/
-Version: 0.73
-*/
+ * Plugin Name: Double Opt-In Helper
+ * Plugin URI: https://contactform7.com/doi-helper/
+ * Description: A WordPress plugin that helps developers implement the double opt-in process in their plugins.
+ * Author: Takayuki Miyoshi
+ * Author URI: https://ideasilo.wordpress.com/
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Version: 1.0
+ * Requires at least: 6.1
+ * Requires PHP: 7.4
+ */
 
-define( 'DOIHELPER_VERSION', '0.73' );
+define( 'DOIHELPER_VERSION', '1.0' );
 
 define( 'DOIHELPER_PLUGIN', __FILE__ );
 
