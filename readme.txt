@@ -1,11 +1,13 @@
 === Double Opt-In Helper ===
 Contributors: takayukister
 Tags: privacy, consent, opt-in
-Requires at least: 5.7
-Tested up to: 6.0
+Requires at least: 6.1
+Tested up to: 6.2
 Stable tag: trunk
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Donate link: https://contactform7.com/donate/
 
 Double Opt-In Helper is a WordPress plugin that helps developers implement the double opt-in process in their plugins.
 
@@ -48,6 +50,11 @@ The session data will be stored in the database until the user opts-in, or the a
 == Screenshots ==
 
 == Changelog ==
+
+= 1.0 =
+
+* Bumps up the minimum required WordPress version to 6.1.
+* Bumps up the minimum required PHP version to 7.4.
 
 = 0.73 =
 
