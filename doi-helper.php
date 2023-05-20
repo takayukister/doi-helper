@@ -34,7 +34,7 @@ function doihelper_start_session( $agent_name, $args = array() ) {
 
 
 add_action( 'init',
-	function () {
+	static function () {
 		doihelper_register_post_types();
 
 		do_action( 'doihelper_init' );
@@ -54,7 +54,7 @@ add_action( 'init',
 
 
 add_action( 'wp_after_insert_post',
-	function ( $post_id ) {
+	static function ( $post_id ) {
 		$post_type = get_post_type( $post_id );
 		$post_status = get_post_status( $post_id );
 
