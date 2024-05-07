@@ -1,8 +1,8 @@
 === Double Opt-In Helper ===
 Contributors: takayukister
 Tags: privacy, consent, opt-in
-Requires at least: 6.1
-Tested up to: 6.2
+Requires at least: 6.4
+Tested up to: 6.5
 Stable tag: trunk
 Requires PHP: 7.4
 License: GPLv2 or later
